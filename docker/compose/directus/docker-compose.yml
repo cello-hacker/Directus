@@ -1,0 +1,72 @@
+services:
+  directus-mariadb:
+    image: wrzlbrmft/directus:${DIRECTUS_IMAGE_TAG}
+    restart: on-failure
+    ports:
+      - 8055:8055
+    volumes:
+      - directus-volume:/directus/data:delegated
+    environment:
+      DB_CLIENT: mysql
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_DATABASE: directus
+      DB_USER: root
+      DB_PASSWORD: r00t
+      KEY: 255d861b-5ea1-5996-9aa3-922530ec40b1
+      SECRET: 6116487b-cda1-52c2-b5b5-c8022c45e263
+      STORAGE_LOCAL_ROOT: ./data/uploads
+      EXTENSIONS_PATH: ./data/extensions
+      ADMIN_EMAIL: admin@admin.com
+      ADMIN_PASSWORD: admin
+      TELEMETRY: false
+
+  directus-postgres:
+    image: wrzlbrmft/directus:${DIRECTUS_IMAGE_TAG}
+    restart: on-failure
+    ports:
+      - 8055:8055
+    volumes:
+      - directus-volume:/directus/data:delegated
+    environment:
+      DB_CLIENT: pg
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: postgres
+      DB_SEARCH_PATH: directus
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      KEY: 255d861b-5ea1-5996-9aa3-922530ec40b1
+      SECRET: 6116487b-cda1-52c2-b5b5-c8022c45e263
+      STORAGE_LOCAL_ROOT: ./data/uploads
+      EXTENSIONS_PATH: ./data/extensions
+      ADMIN_EMAIL: admin@admin.com
+      ADMIN_PASSWORD: admin
+      TELEMETRY: false
+
+  mariadb:
+    image: wrzlbrmft/mariadb-multi-db:${MARIADB_IMAGE_TAG}
+    restart: on-failure
+    ports:
+      - 3306:3306
+    volumes:
+      - mariadb-volume:/var/lib/mysql:delegated
+    environment:
+      MARIADB_ROOT_PASSWORD: r00t
+      MARIADB_DATABASES: directus
+
+  postgres:
+    image: wrzlbrmft/postgres-multi-schema:${POSTGRES_IMAGE_TAG}
+    restart: on-failure
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres-volume:/var/lib/postgresql/data:delegated
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_SCHEMAS: directus
+
+volumes:
+  directus-volume:
+  mariadb-volume:
+  postgres-volume:

@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}
+  labels:
+    app: {{ .Release.Name }}
+spec:
+  revisionHistoryLimit: 0
+  serviceName: {{ .Release.Name }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      name: {{ .Release.Name }}
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+{{- if .Values.imagePullSecretName }}
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecretName }}
+{{- end }}
+      containers:
+        - name: {{ .Release.Name }}
+          image: {{ .Values.registryImage }}:{{ .Values.tag }}
+          imagePullPolicy: Always
+          ports:
+            - name: http
+              containerPort: {{ .Values.containerPort }}
+          env:
+            - name: DB_CLIENT
+              value: {{ .Values.directus.db.client | quote }}
+            - name: DB_HOST
+              value: {{ .Values.directus.db.host | quote }}
+            - name: DB_PORT
+              value: {{ .Values.directus.db.port | quote }}
+            - name: DB_DATABASE
+              value: {{ .Values.directus.db.database | quote }}
+            - name: DB_SEARCH_PATH
+              value: {{ .Values.directus.db.searchPath | quote }}
+            - name: DB_USER
+              value: {{ .Values.directus.db.user | quote }}
+            - name: DB_PASSWORD
+              value: {{ .Values.directus.db.password | quote }}
+            - name: KEY
+              value: {{ .Values.directus.key | default "255d861b-5ea1-5996-9aa3-922530ec40b1" | quote }}
+            - name: SECRET
+              value: {{ .Values.directus.secret | default "6116487b-cda1-52c2-b5b5-c8022c45e263" | quote }}
+            - name: STORAGE_LOCAL_ROOT
+              value: {{ .Values.directus.storage.local.root | quote }}
+            - name: EXTENSIONS_PATH
+              value: {{ .Values.directus.extensions.path | quote }}
+            - name: ADMIN_EMAIL
+              value: {{ .Values.directus.admin.email | default "admin@admin.com" | quote }}
+            - name: ADMIN_PASSWORD
+              value: {{ .Values.directus.admin.password | default "admin" | quote }}
+            - name: TELEMETRY
+              value: {{ .Values.directus.telemetry | quote }}
+          volumeMounts:
+            - name: {{ .Release.Name }}
+              mountPath: /directus/data
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Release.Name }}
+        labels:
+          app: {{ .Release.Name }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10Gi
+{{- if .Values.staticPersistentVolume }}
+        storageClassName: {{ .Values.storageClassName | default .Release.Name }}
+{{- end }}

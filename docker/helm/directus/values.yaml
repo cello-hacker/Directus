@@ -1,0 +1,35 @@
+imagePullSecretName: ""
+registryImage: wrzlbrmft/directus
+tag: 10.8.3
+directus:
+  db:
+#    client: mysql
+#    host: mariadb
+#    port: 3306
+#    database: directus
+#    user: root
+#    password: r00t
+    client: pg
+    host: postgres
+    port: 5432
+    database: postgres
+    searchPath: directus
+    user: postgres
+    password: postgres
+  key: ""
+  secret: ""
+  storage:
+    local:
+      root: ./data/uploads
+  extensions:
+    path: ./data/extensions
+  admin:
+    email: ""
+    password: ""
+  telemetry: false
+containerPort: 8055
+port: 8055
+staticPersistentVolume: false
+storageClassName: ""
+gcePersistentDiskName: ""
+clusterIssuerName: letsencrypt
