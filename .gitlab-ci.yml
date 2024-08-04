@@ -1,0 +1,51 @@
+include:
+  - project: wrzlbrmft/gitlab-ci
+    ref: main
+    file:
+      - dockerize.yml
+
+variables:
+  ARTIFACT: directus
+
+stages:
+  - dockerize
+  - dockerize-cleanup
+
+dockerize:
+  extends: .dockerize-no-git
+  variables:
+    CLEANUP: 0
+  services:
+    - docker:20-dind
+
+dockerize-10.8.1:
+  extends: .dockerize-no-git
+  variables:
+    TAG: 10.8.1
+  services:
+    - docker:20-dind
+
+dockerize-10.8.3:
+  extends: .dockerize-no-git
+  variables:
+    TAG: 10.8.3
+  services:
+    - docker:20-dind
+
+dockerize-10.10.4:
+  extends: .dockerize-no-git
+  variables:
+    TAG: 10.10.4
+  services:
+    - docker:20-dind
+
+dockerize-cleanup:
+  extends: .dockerize-cleanup-no-git
+  services:
+    - docker:20-dind
+  script:
+    - docker rmi ${IMAGE}:${TAG} || true
+    - docker rmi ${IMAGE}:10.8.1 || true
+    - docker rmi ${IMAGE}:10.8.3 || true
+    - docker rmi ${IMAGE}:10.10.4 || true
+    - docker image prune -f || true
